@@ -4,7 +4,7 @@ const queryString = window.location.search;
 let kanapArray = [];
 
 if (localStorage.getItem("kanapArray")) {
-    JSON.parse(localStorage.getItem("kanapArray"))
+    kanapArray = JSON.parse(localStorage.getItem("kanapArray"))
     console.log("KanapArray");
 }
 
@@ -95,6 +95,7 @@ function saveToCard (color, quantity) {
         name : articleName
     }
     kanapArray.push(data)
+    kanapArray.forEach((kanap) => console.log(kanapArray.id, kanap.color))
     localStorage.setItem("kanapArray", JSON.stringify(kanapArray));
     
 }
