@@ -18,6 +18,8 @@ function retrieveItemFromCart() {
   }
 }
 
+
+
 function displayItem(item) {
   const article = makeArticle(item);
   const imageDiv = makeImageDiv(item);
@@ -137,10 +139,8 @@ function updatePriceAndQuantity(id, newValue, item) {
   saveTheNewData(item);
 }
 
-/* ici PROBLEM  !!!   */
 function saveTheNewData() {
   const dataToSave = JSON.stringify(kanapArray);
-  //console.log(kanapArray)
   localStorage.setItem("kanapArray", dataToSave);
 }
 
@@ -189,84 +189,118 @@ function makeImageDiv(item) {
 }
 
 function submitForm(e) {
-  e.preventDefault();
-  if (kanapArray.length === 0) {
-    alert("please select items to buy");
-    return;
-  }
+	e.preventDefault()
+	if (kanapArray.length === 0) {
+		alert('please select items to buy')
+		return
+	}
 
-  if (validateForm()) return;
-  if (isEmailInvalid()) return;
+	if (validateForm()) return
+	if (isEmailInvalid()) return
 
-  const body = makeBody();
-  fetch("http://localhost:3000/api/products/order", {
-    method: "POST",
-    body: JSON.stringify(body),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      const orderId = data.orderId;
-      window.location.href = "/html/confirmation.html" + "?orderId=" + orderId;
-      return console.log(data);
-    })
-    .catch((err) => console.log(err));
+	const body = makeBody()
+
+	console.log(body)
+	fetch('http://localhost:3000/api/products/order', {
+		method: 'POST',
+		body: JSON.stringify(body),
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	})
+		.then((res) => res.json())
+		.then((data) => {
+			const orderId = data.orderId
+			window.location.href = './confirmation.html?orderId=' + orderId
+      //localStorage.clear()
+		})
+		.catch((err) => console.log(err))
+}
+
+const messageError = {
+	name: 'please give a name',
+	lastName: 'gimme a last name !',
+	address: 'gimme an address',
+	city: 'gimme a vile',
+	email: 'error email!',
 }
 
 function validateForm() {
-  const form = document.querySelector(".cart__order__form");
-  const inputs = form.querySelectorAll("input");
-  inputs.forEach((input) => {
-    if (input.value === "") {
-      alert("please fill all the fields");
-      return true;
-    }
-    return false;
-  });
+	const form = document.querySelector('.cart__order__form')
+	validateElement('name', form.firstName.value)
+	validateElement('lastName', form.lastName.value)
+	validateElement('address', form.address.value)
+	validateElement('city', form.city.value)
+	validateElement('email', form.email.value)
+
+	function validateElement(element, value) {
+		if (value === '') {
+			let errorMsg = null
+			switch (element) {
+				case 'name':
+					errorMsg = messageError.name
+					form.firstName.focus()
+					break
+				case 'lastName':
+					errorMsg = messageError.lastName
+					form.lastName.focus()
+
+					break
+				case 'address':
+					errorMsg = messageError.address
+					form.address.focus()
+					break
+				case 'city':
+					errorMsg = messageError.city
+					form.city.focus()
+					break
+				case 'email':
+					errorMsg = messageError.email
+					form.email.focus()
+					break
+			}
+			if (errorMsg) alert(errorMsg)
+		}
+	}
+
+  
 }
 
 function isEmailInvalid() {
-  const email = document.querySelector("#email").value;
-  const regex = /^[A-Za-z0-9+_.-]+@(.+)$/;
-  if (regex.test(email) === false) {
-    alert("Please enter valid email");
-    return true;
-  }
+	const email = document.querySelector('#email').value
+	const regex = /^[A-Za-z0-9+_.-]+@(.+)$/
+	if (regex.test(email) === false) {
+		alert('Please enter valid email')
+		return true
+	}
 
-  return false;
+	return false
 }
 
 function makeBody() {
-  const form = document.querySelector(".cart__oder__form");
-  const firstName = form.elements.firstName.value;
-  const lastName = form.elements.lastName.value;
-  const adress = form.elements.adress.value;
-  const city = form.elements.city.value;
-  const email = form.elements.email.value;
-  console.log("this", form.elements);
-  const body = {
-    contact: {
-      firstName: firstName,
-      lastName: lastName,
-      adress: adress,
-      city: city,
-      email: email,
-    },
-    products: getIdsFromCache(),
-  };
-  return body;
+	const form = document.querySelector('.cart__order__form')
+	const firstName = form.firstName.value
+	const lastName = form.lastName.value
+	const address = form.address.value
+	const city = form.city.value
+	const email = form.email.value
+	const body = {
+		contact: {
+			firstName,
+			lastName,
+			address,
+			city,
+			email,
+		},
+		products: getKanapes(),
+	}
+	console.log(body)
+	return body
 }
 
-function getIdsFromCache() {
-  const numberOfProducts = localStorage.length;
-  const ids = [];
-  for (let i = 0; i < numberOfProducts; i++) {
-    const key = localStorage.key(i);
-    const id = key.split("-")[0];
-    ids.push(id);
-  }
-
-  return ids;
+function getKanapes() {
+	let kanapes = []
+	let kanap = JSON.parse(localStorage.getItem('kanapArray'))
+	kanap.forEach((item) => kanapes.push(item.id))
+	return kanapes
 }

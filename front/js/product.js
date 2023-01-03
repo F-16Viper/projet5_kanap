@@ -96,7 +96,6 @@ function saveToCard(color, quantity) {
   let ajouter = false;
 
   kanapArray.forEach((kanap) => {
-    // console.log(kanap.id, kanap.color)
     if (kanap.id === id && kanap.color === color) {
       kanap.quantity = Number(quantity);
     } else {
